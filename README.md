@@ -1,3 +1,3 @@
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/rezvanniazi/gretunnel/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/rezvanniazi/gretunnel/main/install.sh)
 ```
