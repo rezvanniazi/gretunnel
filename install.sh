@@ -623,7 +623,7 @@ uninstall_all() {
     echo -e "${YELLOW}[*] Removing all GRE tunnels...${NC}"
     
     # Stop and remove all services
-    for service_file in /etc/systemd/system/gre-*.service 2>/dev/null; do
+    for service_file in /etc/systemd/system/gre-*.service; do
         if [ -f "$service_file" ]; then
             local service_name=$(basename "$service_file")
             systemctl stop "$service_name" 2>/dev/null
