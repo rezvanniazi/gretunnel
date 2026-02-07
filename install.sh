@@ -165,7 +165,10 @@ tunnel_status() {
 setup_iran() {
     echo -e "${CYAN}[+] Setting up IRAN Tunnel${NC}"
     echo -e "${BLUE}══════════════════════════════════════════════${NC}"
-    
+    apt update
+    apt install iptables
+    clear
+
     # Get tunnel name
     read -p "Enter tunnel name (e.g., tunnel-1, iran-main): " TUNNEL_NAME
     if [[ -z "$TUNNEL_NAME" ]]; then
@@ -323,16 +326,7 @@ EOF
     systemctl enable "gre-$TUNNEL_NAME.service"
     systemctl start "gre-$TUNNEL_NAME.service"
     
-    # Configure auto-reboot
-    read -p "Enable auto-reboot schedule? (y/n): " ENABLE_REBOOT
-    if [[ "$ENABLE_REBOOT" == "y" ]]; then
-        read -p "Reboot interval (hours): " REBOOT_HOURS
-        if [[ $REBOOT_HOURS =~ ^[0-9]+$ ]] && [[ $REBOOT_HOURS -gt 0 ]]; then
-            # Add to crontab with unique comment
-            (crontab -l 2>/dev/null | grep -v "#gre-$TUNNEL_NAME#"; echo "0 */$REBOOT_HOURS * * * /sbin/reboot #gre-$TUNNEL_NAME#") | crontab -
-            echo -e "${GREEN}[+] Auto-reboot scheduled every $REBOOT_HOURS hours${NC}"
-        fi
-    fi
+
     
     echo -e "\n${GREEN}[✓] Iran tunnel '$TUNNEL_NAME' setup complete!${NC}"
     echo -e "${CYAN}"
@@ -432,8 +426,6 @@ ip tunnel del \$TUNNEL_DEV 2>/dev/null
 
 # Flush iptables rules for this tunnel
 iptables -D FORWARD -i \$TUNNEL_DEV -o \$DEFAULT_IFACE -j ACCEPT 2>/dev/null
-iptables -D FORWARD -i \$DEFAULT_IFACE -o \$TUNNEL_DEV -m state --state RELATED,ESTABLISHED -j ACCEPT 2>/dev/null
-iptables -t nat -D POSTROUTING -o \$DEFAULT_IFACE -j MASQUERADE 2>/dev/null
 
 # Create tunnel
 ip tunnel add \$TUNNEL_DEV mode gre remote \$IRAN_PUBLIC_IP local \$KHAREJ_PUBLIC_IP ttl 225
@@ -501,6 +493,8 @@ EOF
 }
 
 add_iranips() {
+    DEFAULT_IFACE=$(ip route | grep default | awk '{print $5}' | head -n 1)
+    ip route add $DEFAULT_GW dev $DEFAULT_IFACE
     bash <(curl -Ls https://raw.githubusercontent.com/rezvanniazi/gretunnel/main/iranips.sh) $DEFAULT_GW
 }
 
