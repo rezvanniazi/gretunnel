@@ -90,7 +90,7 @@ tunnel_status() {
     echo -e "${BLUE}══════════════════════════════════════════════${NC}"
     
     # Get all GRE interfaces
-    local tunnels=$(ip link show 2>/dev/null | grep "gre[0-9]:" | awk -F: '{print $2}' | tr -d ' ')
+    local tunnels=$(ip link show | grep "gre[0-9]" | awk -F: '{print $1}' | tr -d ' ')
     
     if [ -z "$tunnels" ]; then
         echo -e "${RED}No GRE tunnels found${NC}"
@@ -103,12 +103,12 @@ tunnel_status() {
         echo -e "${YELLOW}Tunnel: $tunnel${NC}"
         
         # Get tunnel details
-        local local_ip=$(ip addr show $tunnel 2>/dev/null | grep "inet " | awk '{print $2}')
-        local remote_ip=$(ip -d link show $tunnel 2>/dev/null | grep -o "remote [0-9.]*" | awk '{print $2}')
-        local local_pub=$(ip -d link show $tunnel 2>/dev/null | grep -o "local [0-9.]*" | awk '{print $2}')
-        local state=$(ip link show $tunnel 2>/dev/null | grep -o "state [A-Z]*" | awk '{print $2}')
-        local mtu=$(ip link show $tunnel 2>/dev/null | grep -o "mtu [0-9]*" | awk '{print $2}')
-        local ttl=$(ip -d link show $tunnel 2>/dev/null | grep -o "ttl [0-9]*" | awk '{print $2}')
+        local local_ip=$(ip addr show $tunnel | grep "inet " | awk '{print $2}')
+        local remote_ip=$(ip -d link show $tunnel | grep -o "remote [0-9.]*" | awk '{print $2}')
+        local local_pub=$(ip -d link show $tunnel  | grep -o "local [0-9.]*" | awk '{print $2}')
+        local state=$(ip link show $tunnel | grep -o "state [A-Z]*" | awk '{print $2}')
+        local mtu=$(ip link show $tunnel | grep -o "mtu [0-9]*" | awk '{print $2}')
+        local ttl=$(ip -d link show $tunnel | grep -o "ttl [0-9]*" | awk '{print $2}')
         
         echo -e "  State:        ${state:-UNKNOWN}"
         echo -e "  Local IP:     ${local_ip:-Not set}"
