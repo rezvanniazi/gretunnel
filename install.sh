@@ -65,7 +65,7 @@ list_tunnels() {
     # List configured tunnel files
     echo -e "${YELLOW}Configured Tunnel Files:${NC}"
     local config_count=0
-    for config_file in $CONFIG_DIR/*.conf 2>/dev/null; do
+    for config_file in $CONFIG_DIR/*.conf; do
         config_count=$((config_count + 1))
         local tunnel_name=$(basename "$config_file" .conf)
         local tunnel_dev=$(grep "^TUNNEL_DEV=" "$config_file" 2>/dev/null | cut -d= -f2)
